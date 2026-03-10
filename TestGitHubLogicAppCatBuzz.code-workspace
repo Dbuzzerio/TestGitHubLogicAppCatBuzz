@@ -1,0 +1,17 @@
+{
+  "folders": [
+    {
+      "name": "GitHubLogicApp",
+      "path": "./GitHubLogicApp"
+    }
+  ],
+  "settings": {
+    "terminal.integrated.env.windows": {
+      "PATH": "C:\\Users\\d.buzzerio\\.azurelogicapps\\dependencies\\DotNetSDK;${env:PATH}"
+    },
+    "omnisharp.dotNetCliPaths": [
+      "C:\\Users\\d.buzzerio\\.azurelogicapps\\dependencies\\DotNetSDK"
+    ],
+    "debug.internalConsoleOptions": "neverOpen"
+  }
+}
