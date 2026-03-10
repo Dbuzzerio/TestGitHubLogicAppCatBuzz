@@ -9,31 +9,12 @@
                     "variables": [
                         {
                             "name": "Test",
-                            "type": "integer",
-                            "value": 4
+                            "type": "string",
+                            "value": "@environment('GraphId')"
                         }
                     ]
                 },
                 "runAfter": {}
-            },
-            "Read_blob_content": {
-                "type": "ServiceProvider",
-                "inputs": {
-                    "parameters": {
-                        "containerName": "pocmail",
-                        "blobName": "buzzeriodomenico_2026-03-07_15-07-16.json\n"
-                    },
-                    "serviceProviderConfiguration": {
-                        "connectionName": "AzureBlob",
-                        "operationId": "readBlob",
-                        "serviceProviderId": "/serviceProviders/AzureBlob"
-                    }
-                },
-                "runAfter": {
-                    "Initialize_variables": [
-                        "SUCCEEDED"
-                    ]
-                }
             }
         },
         "outputs": {},
