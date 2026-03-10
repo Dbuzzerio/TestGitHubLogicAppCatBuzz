@@ -1,7 +1,4 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy dotnet core app to Azure Function App - LogicAppPOCStandard
+name: Build and deploy Node.js Azure Logic App - LogicAppPOCStandard
 
 on:
   push:
@@ -10,44 +7,50 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
-  DOTNET_VERSION: '8.0.x' # set this to the dotnet version to use
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'GitHubLogicApp' # cartella del progetto (contiene host.json, package.json, workflow...)
+  NODE_VERSION: '18.x'
 
 jobs:
   build-and-deploy:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
-      - name: 'Checkout GitHub Action'
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
-        uses: actions/setup-dotnet@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-      - name: 'Resolve Project Dependencies Using Dotnet'
-        shell: pwsh
+      - name: Install dependencies
+        working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+        run: npm ci
+
+      - name: Build (if present)
+        working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+        run: npm run build --if-present
+
+      - name: List package files (debug)
         run: |
-          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet build --configuration Release --output ./output
-          popd
-      
+          echo "Contents of package folder:"
+          ls -la "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}"
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_18ECFEBC092C4AAAB6F5266A0B1D3E89 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_EAE43FCA499B4237B0E5070A788BC8C2 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_DFAB79D6BDBF4BBBB411F46170562008 }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}           # replace with your secret name if different
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: 'Run Azure Functions Action'
+      - name: Run Azure Functions Action (deploy)
         uses: Azure/functions-action@v1
         id: fa
         with:
           app-name: 'LogicAppPOCStandard'
           slot-name: 'Production'
-          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-          
+          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
