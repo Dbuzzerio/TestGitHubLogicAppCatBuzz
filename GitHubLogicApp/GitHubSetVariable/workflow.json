@@ -10,7 +10,7 @@
                         {
                             "name": "Test",
                             "type": "string",
-                            "value": "@environment('GraphId')"
+                            "value": "@appsetting('GraphId')"
                         }
                     ]
                 },
